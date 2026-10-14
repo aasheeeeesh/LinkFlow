@@ -1,0 +1,5 @@
+fastapi==0.143.0
+uvicorn[standard]>=0.30
+duckdb==1.5.6
+numpy==2.4.6
+scipy==1.17.1

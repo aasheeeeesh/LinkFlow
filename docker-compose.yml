@@ -1,0 +1,53 @@
+name: linkflow-lab
+
+services:
+  app:
+    build: .
+    image: linkflow-lab:latest
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
+
+  # One-off data job; not started by `docker compose up`. Run it while `app` is stopped,
+  # because DuckDB allows only one process to write the database:
+  #   docker compose run --rm load-ranks
+  load-ranks:
+    build: .
+    image: linkflow-lab:latest
+    command: ["python", "-m", "backend.jobs.load_ranks"]
+    volumes:
+      - ./data:/app/data
+    environment:
+      LINKFLOW_DUCKDB_MEMORY: "3GB"
+    profiles: ["jobs"]
+
+  # Phase 2 pipeline, run in this order (each is a one-off job):
+  download-graph:
+    image: linkflow-lab:latest
+    build: .
+    command: ["python", "-m", "backend.jobs.download_graph"]
+    volumes:
+      - ./data:/app/data
+    profiles: ["jobs"]
+
+  build-subgraph:
+    image: linkflow-lab:latest
+    build: .
+    command: ["python", "-m", "backend.jobs.build_subgraph", "--top", "1000000"]
+    volumes:
+      - ./data:/app/data
+    environment:
+      LINKFLOW_DUCKDB_MEMORY: "3GB"
+    profiles: ["jobs"]
+
+  compute-all:
+    image: linkflow-lab:latest
+    build: .
+    command: ["python", "-m", "backend.jobs.compute_all"]
+    volumes:
+      - ./data:/app/data
+    environment:
+      LINKFLOW_DUCKDB_MEMORY: "3GB"
+    profiles: ["jobs"]

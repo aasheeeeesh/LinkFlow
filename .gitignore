@@ -1,0 +1,19 @@
+# downloaded and derived data (databases, graph matrices, raw Common Crawl files, logs)
+/data/*
+# ...except the Phase 2 report and the Phase 3 pipeline script, which are documentation and code
+!/data/PHASE2_REPORT.md
+!/data/phase3_chain.sh
+
+# Python
+.venv/
+__pycache__/
+.pytest_cache/
+
+# frontend
+frontend/node_modules/
+frontend/dist/
+*.tsbuildinfo
+
+# local logs and editor/agent settings
+*.log
+.claude/
